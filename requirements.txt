@@ -1,0 +1,3 @@
+beautifulsoap4
+requests
+pymysql
