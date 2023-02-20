@@ -4,6 +4,7 @@ from reality import Reality
 from database import Database
 
 BAZOS_REALITY_URL = 'https://reality.bazos.cz'
+BAZOS_ADS_PER_PAGE = 20
 
 def parse_ad_id(url):
     return url.split('/')[-2]
@@ -16,6 +17,14 @@ def fetch_reality_bazos():
     html = requests.get('{}/prodam/dum/?hledat=&hlokalita=68604&humkreis=8&cenaod=&cenado=&order='.format(BAZOS_REALITY_URL))
     soup = BeautifulSoup(html.text, 'html.parser')
     maincontent = soup.find_all(class_="inzeraty")
+    pages = len(soup.find_all(class_="strankovani")[0].find_all('a'))
+    print("pages", pages)
+    if pages > 1:
+        for page in range(1, pages):
+            html = requests.get('{}/prodam/dum/{}/?hledat=&hlokalita=68604&humkreis=8&cenaod=&cenado=&order='.format(BAZOS_REALITY_URL, page * BAZOS_ADS_PER_PAGE))
+            soup = BeautifulSoup(html.text, 'html.parser')
+            maincontent += soup.find_all(class_="inzeraty")
+
     for i in range(len(maincontent)):
         title = maincontent[i].find_all(class_="inzeratynadpis")[0].find('h2').text
         date = maincontent[i].find_all(class_="inzeratynadpis")[0].find('span').text[4:-1]
@@ -38,10 +47,9 @@ def fetch_reality_bazos():
         viewed_count = detail_info.find_all('tr')[3].find_all('td')[1].text.replace(' lidí', '')
 
         reality = Reality(id=ad_id, title=title, price=price, publish_date=publish_date, href=href, location=location, description=description, advertiser_name=advertiser_name, viewed_count=viewed_count)
-        reality.set_provider('Bazos')
+        reality.set_provider(1) # 1 = bazos.cz
 
         realities.append(reality)
-
     return realities
 
 def push_to_db(realities):
@@ -49,20 +57,18 @@ def push_to_db(realities):
     for count, reality in enumerate(realities):
         if count == 0:
             continue
-        # print(reality)
         db.insert_one(reality)
-        db.insert_to_history(reality)
+        # db.insert_to_history(reality)
     return True
 
 def main():
+    print("Fetching reality from Bazos.cz ...")
     realities = fetch_reality_bazos()
+    print("Pushing to database ...")
     result =push_to_db(realities)
-    print("pushed", push_to_db(realities))
+    print("DB returned:", result)
 
 if __name__ == '__main__':
     main()
-## TODO: pagination
-# number of <a> in class "strankovani" is number of pages
 
-## TODO: add to database
 ## TODO: add sbazar.cz support

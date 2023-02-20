@@ -4,26 +4,34 @@ class Database:
     def __init__(self):
         try:
             self.connection = pymysql.connect(
-                host="sql.endora.cz", # innodb.endora.cz
-                user="homeuser",        # realityuser
+                host="innodb.endora.cz",
+                user="realityuser",
                 password="Ab1122334455",
-                port=3308,              # 3306
-                database="realitydbold",# realitydb
+                port=3306,
+                database="realitydb",
                 cursorclass=pymysql.cursors.DictCursor,
             )
             with self.connection.cursor() as cursor:
+                cursor.execute("""CREATE TABLE IF NOT EXISTS reality_provider (
+                    id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, name VARCHAR(255) UNIQUE)
+                    ENGINE=INNODB;
+                    """)
+
+                cursor.execute("""INSERT IGNORE INTO reality_provider (name) VALUES ('Bazos')""")
+
                 cursor.execute("""CREATE TABLE IF NOT EXISTS reality (
-                    id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, ad_id INT, provider_id, title VARCHAR(255), price INT, location VARCHAR(255), date DATE, description VARCHAR(255), viewed_count INT, advertiser_name VARCHAR(255), image VARCHAR(255), url VARCHAR(255) UNIQUE, note VARCHAR(255),
+                    id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, ad_id VARCHAR(255), provider_id INT, title VARCHAR(255), price INT, location VARCHAR(255), date DATE, description VARCHAR(255), viewed_count INT, advertiser_name VARCHAR(255), image VARCHAR(255), url VARCHAR(255) UNIQUE, note VARCHAR(255), flags VARCHAR(255),
                     FOREIGN KEY (provider_id) REFERENCES reality_provider(id)
-                    ON DELETE CASCADE)""")
+                    ON DELETE CASCADE)
+                    ENGINE=INNODB;
+                    """)
 
                 cursor.execute("""CREATE TABLE IF NOT EXISTS reality_history (
-                    id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, reality_id INT, price INT, date DATETIME DEFAULT CURRENT_TIMESTAMP, description VARCHAR(255), viewed_count INT, note VARCHAR(255),
+                    id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, reality_id INT, price INT, update_datetime DATETIME DEFAULT CURRENT_TIMESTAMP, description VARCHAR(255), viewed_count INT, note VARCHAR(255),
                     FOREIGN KEY (reality_id) REFERENCES reality(id)
-                    ON DELETE CASCADE)""")
-
-                cursor.execute("""CREATE TABLE IF NOT EXISTS reality_provider (
-                    id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, name VARCHAR(255) UNIQUE) """)
+                    ON DELETE CASCADE)
+                    ENGINE=INNODB;
+                    """)
         except:
             raise Exception("Cannot connect to DB!")
 
@@ -33,6 +41,7 @@ class Database:
 
         with self.connection.cursor() as cursor:
             cursor.execute(query)
+            self.connection.commit()
             if single:
                 return cursor.fetchone()
             else:
@@ -45,11 +54,15 @@ class Database:
         return self.execute_query("SELECT * FROM reality WHERE id = {}".format(id))
 
     def insert_one(self, reality):
-        query = f"INSERT IGNORE INTO reality (ad_id, title, price, location, date, description, viewed_count, advertiser_name, image, url) VALUES ({reality.id}, '{reality.title}', {reality.price}, '{reality.location}', '{reality.publish_date}', '{reality.description}', {reality.viewed_count}, '{reality.advertiser_name}', '{reality.image}', '{reality.href}' )"
+        query = f"INSERT IGNORE INTO reality (ad_id, provider_id, title, price, location, date, description, viewed_count, advertiser_name, image, url) VALUES ('{reality.id}', {reality.provider}, '{reality.title}', {reality.price}, '{reality.location}', '{reality.publish_date}', '{reality.description}', {reality.viewed_count}, '{reality.advertiser_name}', '{reality.image}', '{reality.href}' )"
         return self.execute_query(query, single=True)
 
+    def get_reality_id(self, ad_id):
+        return self.execute_query(f"SELECT id FROM reality WHERE ad_id = '{ad_id}'", single=True)
+
     def insert_to_history(self, reality):
-        query = f"INSERT INTO reality_history (reality_id, price, description, viewed_count) VALUES ({reality.id}, {reality.price}, '{reality.description}', {reality.viewed_count})"
+        id = self.get_reality_id(reality.id).get("id")
+        query = f"INSERT INTO reality_history (reality_id, price, description, viewed_count) VALUES ({id}, {reality.price}, '{reality.description}', {reality.viewed_count})"
         print(query)
         return self.execute_query(query, single=True)
 
