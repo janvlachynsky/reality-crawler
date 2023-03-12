@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
-from reality import Reality
-from database import Database
+from helpers.reality import Reality
+from helpers.database import Database
 
 BAZOS_REALITY_URL = 'https://reality.bazos.cz'
 BAZOS_ADS_PER_PAGE = 20
@@ -35,9 +35,10 @@ def fetch_reality_bazos():
         else:
             price = fetched_price.replace(' Kč', '').replace(' ', '')
         location = maincontent[i].find_all(class_="inzeratylok")[0].text
-        href = BAZOS_REALITY_URL + maincontent[i].find_all(class_="inzeratynadpis")[0].find('a')['href']
-        ad_id = parse_ad_id(href)
-        detail_result = BeautifulSoup(requests.get(href).text, 'html.parser')
+        url = BAZOS_REALITY_URL + maincontent[i].find_all(class_="inzeratynadpis")[0].find('a')['href']
+        image = maincontent[i].find_all(class_="inzeratynadpis")[0].find('img')['src']
+        ad_id = parse_ad_id(url)
+        detail_result = BeautifulSoup(requests.get(url).text, 'html.parser')
         description = detail_result.find(class_="popisdetail").text
         # Detail info
         detail_info = detail_result.find(class_='listadvlevo')
@@ -46,26 +47,31 @@ def fetch_reality_bazos():
         advertiser_name = detail_info.find_all('tr')[0].find_all('td')[1].text
         viewed_count = detail_info.find_all('tr')[3].find_all('td')[1].text.replace(' lidí', '')
 
-        reality = Reality(id=ad_id, title=title, price=price, publish_date=publish_date, href=href, location=location, description=description, advertiser_name=advertiser_name, viewed_count=viewed_count)
+        reality = Reality(id=ad_id, title=title, price=price, publish_date=publish_date, url=url, location=location, description=description, advertiser_name=advertiser_name, viewed_count=viewed_count, image=image)
         reality.set_provider(1) # 1 = bazos.cz
 
         realities.append(reality)
+
     return realities
 
 def push_to_db(realities):
-    db = Database()
+    # TODO: use config file for DB credentials
+    db = Database(host="innodb.endora.cz",
+                user="realityuser",
+                password="Ab1122334455",
+                database="realitydb")
     for count, reality in enumerate(realities):
         if count == 0:
             continue
         db.insert_one(reality)
-        # db.insert_to_history(reality)
+        db.insert_to_history(reality)
     return True
 
 def main():
     print("Fetching reality from Bazos.cz ...")
     realities = fetch_reality_bazos()
     print("Pushing to database ...")
-    result =push_to_db(realities)
+    result = push_to_db(realities)
     print("DB returned:", result)
 
 if __name__ == '__main__':

@@ -1,14 +1,21 @@
 import pymysql.cursors
 
+
 class Database:
-    def __init__(self):
+    def __init__(self, host, user, password, database, port=3306):
+        self.host = host
+        self.user = user
+        self.password = password
+        self.database = database
+        self.port = port
+
         try:
             self.connection = pymysql.connect(
-                host="innodb.endora.cz",
-                user="realityuser",
-                password="Ab1122334455",
-                port=3306,
-                database="realitydb",
+                host=self.host,
+                user=self.user,
+                password=self.password,
+                database=self.database,
+                port=self.port,
                 cursorclass=pymysql.cursors.DictCursor,
             )
             with self.connection.cursor() as cursor:
@@ -37,7 +44,7 @@ class Database:
 
     def execute_query(self, query, single=False):
         if self.connection is None:
-            self.__init__()
+            self.__init__(self.host, self.user, self.password, self.database, self.port)
 
         with self.connection.cursor() as cursor:
             cursor.execute(query)
@@ -47,23 +54,33 @@ class Database:
             else:
                 return cursor.fetchall()
 
-    def get_all(self):
-        return self.execute_query("SELECT * FROM reality")
-
-    def get_by_id(self, id: int):
-        return self.execute_query("SELECT * FROM reality WHERE id = {}".format(id))
-
+    # Inserts
     def insert_one(self, reality):
-        query = f"INSERT IGNORE INTO reality (ad_id, provider_id, title, price, location, date, description, viewed_count, advertiser_name, image, url) VALUES ('{reality.id}', {reality.provider}, '{reality.title}', {reality.price}, '{reality.location}', '{reality.publish_date}', '{reality.description}', {reality.viewed_count}, '{reality.advertiser_name}', '{reality.image}', '{reality.href}' )"
+        query = f"INSERT IGNORE INTO reality (ad_id, provider_id, title, price, location, date, description, viewed_count, advertiser_name, image, url) VALUES ('{reality.id}', {reality.provider}, '{reality.title}', {reality.price}, '{reality.location}', '{reality.publish_date}', '{reality.description}', {reality.viewed_count}, '{reality.advertiser_name}', '{reality.image}', '{reality.url}' ) ON DUPLICATE KEY UPDATE price = {reality.price}, description = '{reality.description}', viewed_count = {reality.viewed_count}, image = '{reality.image}';"
         return self.execute_query(query, single=True)
 
-    def get_reality_id(self, ad_id):
-        return self.execute_query(f"SELECT id FROM reality WHERE ad_id = '{ad_id}'", single=True)
-
     def insert_to_history(self, reality):
-        id = self.get_reality_id(reality.id).get("id")
+        id = self.get_reality_id_from_ad_id(reality.id).get("id")
         query = f"INSERT INTO reality_history (reality_id, price, description, viewed_count) VALUES ({id}, {reality.price}, '{reality.description}', {reality.viewed_count})"
         print(query)
         return self.execute_query(query, single=True)
+
+    # Getters
+    def get_realities(self):
+        return self.execute_query("SELECT * FROM reality")
+
+    def get_reality_by_id(self, id: int):
+        return self.execute_query("SELECT * FROM reality WHERE id = {}".format(id))
+
+    def get_reality_id_from_ad_id(self, ad_id):
+        return self.execute_query(f"SELECT id FROM reality WHERE ad_id = '{ad_id}'", single=True)
+
+    def get_reality_history(self, reality):
+        id = self.get_reality_id_from_ad_id(reality.id).get("id")
+        return self.get_reality_history_by_id(id)
+
+    def get_reality_history_by_id(self, id: int):
+        query = f"SELECT * FROM reality_history WHERE reality_id = {id}"
+        return self.execute_query(query)
 
     ## TODO: generic adding method

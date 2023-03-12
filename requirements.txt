@@ -1,3 +1,6 @@
 beautifulsoap4
-requests
+flask
+flask-wtf
+gunicorn
 pymysql
+requests
