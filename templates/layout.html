@@ -1,0 +1,19 @@
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="static/uikit.css" />
+    <link rel="stylesheet" type="text/css" href="static/style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.14.0/js/uikit.min.js" integrity="sha512-nCUjCgCQhCKrOH9CRern20PoBJhFxcaxrAiLrzBznfPzViWKQVCRslBDzHML3vf1oQtdGV7FnJolA9mdujvh8g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask server</title>
+</head>
+<body>
+{% include 'includes/_navbar.html' %}
+    <section class="uk-section uk-width-xlarge" style="margin: 0 auto;">
+        {% block body %}{% endblock %}
+    </section>
+{% include 'includes/_footer.html' %}
+</body>
+</html>

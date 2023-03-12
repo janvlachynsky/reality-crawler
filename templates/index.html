@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+    {% if realities %}
+    <div class="uk-child-width-1-3@s uk-child-width-1-2" uk-grid>
+
+        {% for reality in realities %}
+            <div class="uk-card uk-card-small uk-grid-collapse uk-margin" uk-grid>
+                <div class="uk-card-media-top uk-cover-container">
+                    {% if reality.image %}
+                        <img src="{{reality.image}}" alt="" uk-cover>
+                        <canvas width="600" height="400"></canvas>
+                    {% else %}
+                        <img src="https://via.placeholder.com/600x400" alt="" uk-cover>
+                        <canvas width="600" height="400"></canvas>
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="uk-card-header uk-padding-remove-left uk-padding-remove-right">
+                        <h5 class="uk-card-title" style="font-size:14pt;">
+                            <a href="{{reality.url}}" target="_blank">{{reality.title}}</a>
+                        </h5>
+                    </div>
+                    <div class="uk-card-body uk-padding-remove-left uk-padding-remove-right">
+                        <div uk-grid>
+                            <div><strong>{{ "{:,}".format(reality.price)}} Kč</strong></div>
+                            <div>{{reality.publish_date}}</div>
+                        </div>
+
+                        <div class="uk-card-badge uk-label">{{reality.viewed_count}}</div>
+                        {% if reality.history|length<2 %}
+                        <div class="uk-card-badge uk-label">New</div>
+
+                        {% endif %}
+                        <p>
+                            {{reality.description}}
+                        </p>
+                    </div>
+                    <div class="uk-card-footer uk-padding-remove-left uk-padding-remove-right">
+                        <strong>History</strong>
+                        <br>
+                        <div class="history">
+                            {% if reality.history %}
+                            {% for history in reality.history %}
+                            {{history.history_date}}:{{"{:,}".format(history.price)}}|
+                            {% endfor %}
+                            {% else %}
+                            <p>no history</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+    </div>
+    {% endif %}
+{% endblock %}
