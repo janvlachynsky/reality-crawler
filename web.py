@@ -18,11 +18,9 @@ db = Database(**dict(config["database"]))
 def index():
     ## TODO: finish loading realities from DB
     realities = parse_many_from_db(db.get_realities())
-    for key, reality in enumerate(realities):
+    for reality in realities:
         history_list = parse_history_from_db(db.get_reality_history_by_id(reality.id))
         reality.set_history(history_list)
-        if key == 5:
-            break
     return render_template('index.html', realities=realities)
 
 @app.route('/about')

@@ -25,7 +25,7 @@
                     <div class="uk-card-body uk-padding-remove-left uk-padding-remove-right">
                         <div uk-grid>
                             <div><strong>{{ "{:,}".format(reality.price)}} Kč</strong></div>
-                            <div>{{reality.publish_date}}</div>
+                            <div>{{reality.date}}</div>
                         </div>
 
                         <div class="uk-card-badge uk-label">{{reality.viewed_count}}</div>
@@ -42,9 +42,11 @@
                         <br>
                         <div class="history">
                             {% if reality.history %}
-                            {% for history in reality.history %}
-                            {{history.history_date}}:{{"{:,}".format(history.price)}}|
-                            {% endfor %}
+                            <ul class="uk-list" style="font-size:10pt;">
+                                {% for history in reality.history %}
+                                    <li>{{history.update_datetime}}: {{"{:,} Kč".format(history.price)}}</li>
+                                {% endfor %}
+                            </ul>
                             {% else %}
                             <p>no history</p>
                             {% endif %}
