@@ -15,7 +15,7 @@ class Database:
                 user=self.user,
                 password=self.password,
                 database=self.database,
-                port=self.port,
+                port= int(self.port),
                 cursorclass=pymysql.cursors.DictCursor,
             )
             with self.connection.cursor() as cursor:

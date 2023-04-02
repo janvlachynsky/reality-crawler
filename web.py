@@ -1,19 +1,18 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging
-from helpers.database import Database
-from helpers.reality import *
-
+import configparser
 
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
 
+from helpers.database import Database
+from helpers.reality import *
 
 app = Flask(__name__)
 
-db = Database(host="innodb.endora.cz",
-                user="realityuser",
-                password="Ab1122334455",
-                database="realitydb")
-
+# Config MySQL
+config = configparser.ConfigParser()
+config.read('config.conf')
+db = Database(**dict(config["database"]))
 
 @app.route('/')
 def index():

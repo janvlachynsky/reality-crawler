@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import configparser
 from helpers.reality import Reality
 from helpers.database import Database
 
@@ -55,11 +56,11 @@ def fetch_reality_bazos():
     return realities
 
 def push_to_db(realities):
-    # TODO: use config file for DB credentials
-    db = Database(host="innodb.endora.cz",
-                user="realityuser",
-                password="Ab1122334455",
-                database="realitydb")
+    # Config MySQL
+    config = configparser.ConfigParser()
+    config.read('config.conf')
+    db = Database(**dict(config["database"]))
+
     for count, reality in enumerate(realities):
         if count == 0:
             continue

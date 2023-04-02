@@ -1,4 +1,3 @@
-beautifulsoap4
 flask
 flask-wtf
 gunicorn
