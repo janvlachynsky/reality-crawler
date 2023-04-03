@@ -80,8 +80,7 @@ class Database:
         try:
             id = self.get_reality_id_from_ad_id(reality.id).get("id")
         except:
-            print("Could not get id from DB, probalby not inserted yet! {}, {}".format(reality.id, reality.url))
-            raise
+            raise Exception("Could not get id from DB, probalby not inserted yet! {}, {}".format(reality.id, reality.url))
         query = f"""
             INSERT INTO reality_history
                 (reality_id, price, description, viewed_count)
@@ -92,7 +91,7 @@ class Database:
 
     # Getters
     def get_realities(self):
-        return self.execute_query("SELECT * FROM reality order by date DESC")
+        return self.execute_query("SELECT * FROM reality order by flags ASC, date DESC")
 
     def get_reality_by_id(self, id: int):
         return self.execute_query("SELECT * FROM reality WHERE id = {}".format(id))
@@ -115,16 +114,16 @@ class Database:
 
     ## TODO: generic adding method
 
-    # Deactivates old realities
+    # Disables expired (inactive) realities
     # Old reality is a reality that has not been updated for more than 1 hour from the last update
-    def deactivate_old_realities(self):
+    def disable_expired_realities(self):
         query = """
-            UPDATE reality r
-                LEFT JOIN
-                    (SELECT * from reality_history rh group by reality_id order by update_datetime DESC)
-                    rh ON r.id = rh.reality_id
-                SET flags = 'DELETED'
-                WHERE rh.update_datetime <
-                    (SELECT MAX(update_datetime) FROM reality_history) - INTERVAL 1 HOUR
+                UPDATE reality r
+                    LEFT JOIN
+                        (SELECT reality_id, MAX(update_datetime) as datetime from reality_history group by reality_id) last_update
+                        ON r.id = last_update.reality_id
+                    SET flags = 'EXPIRED'
+                    WHERE last_update.datetime <
+                        ((SELECT MAX(update_datetime) FROM reality_history) - INTERVAL 1 HOUR)
             """
         return self.execute_query(query)

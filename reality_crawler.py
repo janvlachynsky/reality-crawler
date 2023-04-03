@@ -41,7 +41,7 @@ def fetch_reality_bazos():
         image = maincontent[i].find_all(class_="inzeratynadpis")[0].find('img')['src']
         ad_id = parse_ad_id(url)
         detail_result = BeautifulSoup(requests.get(url).text, 'html.parser')
-        description = detail_result.find(class_="popisdetail")
+        description = detail_result.find(class_="popisdetail").text
         # Detail info
         detail_info = detail_result.find(class_='listadvlevo')
         advertiser_name = detail_info.find_all('tr')[0].find_all('td')[1].text
@@ -71,11 +71,11 @@ def push_to_db(realities):
             raise Exception("Error while inserting reality to history")
     return True
 
-def deactivate_old_realities():
+def disable_expired_realities():
     config = configparser.ConfigParser()
     config.read('config.conf')
     db = Database(**dict(config["database"]))
-    return db.deactivate_old_realities()
+    return db.disable_expired_realities()
 
 def main():
     print("Fetching reality from Bazos.cz ...")
@@ -83,7 +83,7 @@ def main():
     print("Pushing to database ...")
     result = push_to_db(realities)
     print("DB returned:", result)
-    result = deactivate_old_realities()
+    result = disable_expired_realities()
     print("Old instances deactivated:", result)
 
 if __name__ == '__main__':

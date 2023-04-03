@@ -38,6 +38,7 @@ class Reality:
         self.advertiser_name = advertiser_name
         self.image = image
         self.viewed_count = viewed_count
+        # TODO parsing flags (comma separated flags)
         self.flags = flags
 
     def set_provider(self, provider):

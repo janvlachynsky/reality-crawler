@@ -6,3 +6,7 @@ h1 strong {
 .uk-width-xlarge{
     width: 900px;
 }
+
+.flag-expired{
+    opacity: .5;
+}
