@@ -1,6 +1,5 @@
-from flask import Flask, render_template, flash, redirect, url_for, session, logging
-import configparser
-
+from flask import Flask, render_template, request, flash, redirect, url_for, session, logging
+import configparser, os
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
 
@@ -8,6 +7,7 @@ from helpers.database import Database
 from helpers.reality import *
 
 app = Flask(__name__)
+project_dir = os.path.dirname(__file__)
 
 # Config MySQL
 config = configparser.ConfigParser()
@@ -18,7 +18,8 @@ db = Database(**dict(config["database"]))
 def index():
     ## TODO: finish loading realities from DB
     realities = parse_many_from_db(db.get_realities())
-    for reality in realities:
+    expired_realities = []
+    for index, reality in enumerate(realities, 0):
         history_list = parse_history_from_db(db.get_reality_history_by_id(reality.id))
         reality.set_history(history_list)
         if reality.flags:

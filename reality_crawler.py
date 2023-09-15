@@ -23,17 +23,27 @@ def push_to_db(db, realities):
     return True
 
 def main():
-    config = configparser.ConfigParser()
-    config.read('config.conf')
-    db = Database(**dict(config["database"]))
+    project_dir = os.path.dirname(__file__)
+    logging.basicConfig(filename=os.path.join(project_dir,'logs','reality_crawler.log'), level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(message)s')
 
-    print("Fetching reality from Bazos.cz ...")
+    config = configparser.ConfigParser()
+    config.read(os.path.join(project_dir,'config.conf'))
+    db = Database(**dict(config["database"]))
+    # start time measurement
+    import time
+    start = time.time()
+
+    logging.info("Fetching reality from Bazos.cz ...")
     realities = fetch_reality_bazos(**dict(config["bazos"]))
-    print("Pushing to database ...")
+    end = time.time()
+    logging.info("Fetched {} realities in {} seconds".format(len(realities), end - start))
+    # TODO: fetch from sbazar.cz
+    logging.info("Pushing to database ...")
+    # TODO: dont push to db if pushed last 12 hours
     result = push_to_db(db, realities)
-    print("DB returned:", result)
+    logging.info(f"DB returned: {result}")
     result = db.disable_expired_realities()
-    print("Old instances deactivated:", result)
+    logging.info(f"Old instances deactivated: {result}")
 
 if __name__ == '__main__':
     main()
