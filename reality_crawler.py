@@ -42,7 +42,7 @@ def main():
     # TODO: dont push to db if pushed last 12 hours
     result = push_to_db(db, realities)
     logging.info(f"DB returned: {result}")
-    result = db.disable_expired_realities()
+    result = db.update_expired_realities()
     logging.info(f"Old instances deactivated: {result}")
 
 if __name__ == '__main__':

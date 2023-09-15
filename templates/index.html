@@ -19,22 +19,27 @@
                     {% endif %}
                 </div>
                 <div>
-                    <div class="uk-card-header uk-padding-remove-left uk-padding-remove-right">
+                    <div class="uk-card-header uk-padding-remove-top uk-padding-remove-left uk-padding-remove-right">
                         <h5 class="uk-card-title" style="font-size:14pt;">
-                            <a href="{{reality.url}}" target="_blank">{{reality.title}}</a>
+                            <a href="{{ reality.url }}" target="_blank">{{ reality.title }}</a>
                         </h5>
+                        <span class="toggles">
+                            <a class="reality_action state-{{ reality.is_hidden }}" data-action="hide" data-reality-id="{{ reality.id }}" data-current-state="{{ reality.is_hidden }}" href="#"  uk-icon="icon: eye-slash"></a>
+                            <a class="reality_action state-{{ reality.is_favourite }}" data-action="favourite" data-reality-id="{{ reality.id }}" data-current-state="{{ reality.is_favourite }}" href="#"  uk-icon="icon: heart"></a>
+                            <a class="reality_action" data-action="expire" data-reality-id="{{ reality.id }}" data-current-state="{{ reality.is_delete }}" href="#"  uk-icon="icon: heart"></a>
+                        </span>
                     </div>
-                    <div class="uk-card-body uk-padding-remove-left uk-padding-remove-right">
+                    <div class="uk-card-body uk-padding-remove-top uk-padding-remove-left uk-padding-remove-right">
                         <div uk-grid>
-                            <div><strong>{{ "{:,}".format(reality.price)}} Kč</strong></div>
-                            <div>{{reality.date}}</div>
+                            <div><strong>{{ "{:,}".format(reality.price) }} Kč</strong></div>
+                            <div>{{ reality.date }}</div>
                         </div>
 
                         <div class="uk-card-badge uk-label">{{reality.viewed_count}}</div>
                         {% if reality.history|length<2 %}
                         <div class="uk-card-badge uk-label">New</div>
-
                         {% endif %}
+
                         <p>
                             {{reality.description}}...
                         </p>
