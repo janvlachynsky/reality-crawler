@@ -24,10 +24,13 @@ class Reality:
     advertiser_name = ""
     viewed_count = ""
     flags = ""
+    is_favourite = False
+    is_hidden = False
+    is_expired = False
     history:list = list()
 
 
-    def __init__(self, id, title, price, url, date, location, description, advertiser_name, image, viewed_count, flags = "", **kwargs):
+    def __init__(self, id, title, price, url, date, location, description, advertiser_name, image, viewed_count, flags = "", is_favourite = 0, is_hidden = 0, is_expired = 0, **kwargs):
         self.id = id
         self.title = title
         self.price = price
@@ -38,8 +41,11 @@ class Reality:
         self.advertiser_name = advertiser_name
         self.image = image
         self.viewed_count = viewed_count
-        # TODO parsing flags (comma separated flags)
+        # TODO remove flags, replaced by is_favourite, is_hidden, is_expired
         self.flags = flags
+        self.is_favourite = is_favourite
+        self.is_hidden = is_hidden
+        self.is_expired = is_expired
 
     def set_provider(self, provider):
         self.provider = provider
@@ -48,6 +54,7 @@ class Reality:
         return "Id: {}\n Title: {}\n Price: {}\n PublishDate: {}\n Location: {}\n Description: {}\n url: {}\n Advertiser: {}\n ViewedCount: {}".format(
             self.id, self.title, self.price, self.date, self.location, self.description, self.url, self.advertiser_name, self.viewed_count
         )
+
     def toString(self):
         return "Id: {}\n Title: {}\n Price: {}\n PublishDate: {}\n Location: {}\n Description: {}\n url: {}\n Advertiser: {}\n ViewedCount: {}".format(
             self.id, self.title, self.price, self.date, self.location, self.description, self.url, self.advertiser_name, self.viewed_count

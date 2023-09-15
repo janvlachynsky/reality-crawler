@@ -31,7 +31,7 @@ class Database:
 
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS reality
-                        (id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, ad_id VARCHAR(255), provider_id INT, title VARCHAR(255), price INT, location VARCHAR(255), date DATE, description VARCHAR(255), viewed_count INT, advertiser_name VARCHAR(255), image VARCHAR(255), url VARCHAR(255) UNIQUE, note VARCHAR(255), flags VARCHAR(255),
+                        (id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, ad_id VARCHAR(255) COMMENT "ID of ad parsed from server", provider_id INT, title VARCHAR(255), price INT, location VARCHAR(255), date DATE, description VARCHAR(255), viewed_count INT, advertiser_name VARCHAR(255), image VARCHAR(255), url VARCHAR(255) UNIQUE, note VARCHAR(255), is_favourite BOOLEAN DEFAULT FALSE , is_expired BOOLEAN DEFAULT FALSE, is_hidden BOOLEAN DEFAULT FALSE,
                     FOREIGN KEY (provider_id) REFERENCES reality_provider(id)
                     ON DELETE CASCADE)
                     ENGINE=INNODB;
@@ -91,7 +91,7 @@ class Database:
 
     # Getters
     def get_realities(self):
-        return self.execute_query("SELECT * FROM reality order by flags ASC, date DESC")
+        return self.execute_query("SELECT * FROM reality order by is_favourite DESC, is_hidden ASC, date DESC, is_expired ASC")
 
     def get_reality_by_id(self, id: int):
         return self.execute_query("SELECT * FROM reality WHERE id = {}".format(id))
@@ -112,7 +112,10 @@ class Database:
         query = f"SELECT * FROM reality_history WHERE reality_id = {id}"
         return self.execute_query(query)
 
-    ## TODO: generic adding method
+
+    def set_flag_by_reality_id(self, id: int, column_name: str, value: int = 1):
+        query = f"UPDATE reality SET {column_name} = {int(value)} WHERE id = {id}"
+        return self.execute_query(query)
 
     # Disables expired (inactive) realities
     # Old reality is a reality that has not been updated for more than 1 hour from the last update

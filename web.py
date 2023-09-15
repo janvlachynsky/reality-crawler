@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 # Config MySQL
 config = configparser.ConfigParser()
-config.read('config.conf')
+config.read(os.path.join(project_dir,'config.conf'))
 db = Database(**dict(config["database"]))
 
 @app.route('/')
@@ -21,7 +21,41 @@ def index():
     for reality in realities:
         history_list = parse_history_from_db(db.get_reality_history_by_id(reality.id))
         reality.set_history(history_list)
-    return render_template('index.html', realities=realities)
+        if reality.flags:
+            reality.flags = reality.flags.split(',')
+            if 'EXPIRED' in reality.flags:
+                print("Expired reality:", reality.id, reality.title)
+                expired_realities.append(reality)
+                del realities[index]
+                # TODO: FINISH HIDE OF EXPIRED REALITIES
+    return render_template('index.html', realities=realities, expired_realities=expired_realities)
+
+# Set reality flags
+@app.route('/reality_set', methods=['POST'])
+def reality_set():
+    if request.method == 'POST':
+        # TODO: finish favourite/disable
+        reality_id = int(request.form['reality_id'])
+        action = request.form['action']
+        # TODO: LATEST: pass current_state and invert it to save into DB
+        current_state = request.form['current_state']
+        print("reality_set_flag triggered with: ", action, " and ", reality_id , " current ", current_state)
+
+        assert(action in ('hide', 'favourite', 'expire'))
+        assert(isinstance(reality_id, int) and reality_id > 0)
+
+        # Works as toggle - use inverted current_state, but only if current_state is not None
+        value_to_set = not bool(int(current_state)) if current_state is not None else 1
+        print(f"changed from {bool(int(current_state))} to {value_to_set}")
+
+        if action == 'hide':
+            db.set_flag_by_reality_id(reality_id, 'is_hidden', value_to_set)
+        elif action == 'favourite':
+            db.set_flag_by_reality_id(reality_id, 'is_favourite', value_to_set)
+        elif action == 'expire':
+            db.set_flag_by_reality_id(reality_id, 'is_expired', value_to_set)
+
+        return render_template('index.html')
 
 @app.route('/about')
 def about():

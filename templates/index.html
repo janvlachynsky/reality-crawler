@@ -1,17 +1,17 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+<div class="uk-button" id="toggle_all_histories">Show/hide histories</div>
 ## TODO: favourite ads
 ## TODO: javascript interraction, hide, manually expire ..
     {% if realities %}
     <div class="uk-child-width-1-3@s uk-child-width-1-2" uk-grid>
-
         {% for reality in realities %}
 
-            <div class="uk-card uk-card-small uk-grid-collapse uk-margin flag-{{reality.flags|lower}}" uk-grid>
+            <div class="uk-card uk-card-small uk-grid-collapse uk-margin flag-{{ reality.flags|lower }}" uk-grid>
                 <div class="uk-card-media-top uk-cover-container">
                     {% if reality.image %}
-                        <img src="{{reality.image}}" alt="" uk-cover>
+                        <img src="{{ reality.image }}" alt="" uk-cover>
                         <canvas width="320" height="180"></canvas>
                     {% else %}
                         <img src="https://via.placeholder.com/600x400" alt="" uk-cover>

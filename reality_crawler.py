@@ -1,5 +1,7 @@
 
 import configparser
+import os
+import logging
 from helpers.reality import Reality
 from helpers.database import Database
 from helpers.fetcher import fetch_reality_bazos

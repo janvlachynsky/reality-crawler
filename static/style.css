@@ -3,10 +3,24 @@ h1 strong {
     color: navy;
 }
 
-.uk-width-xlarge{
+.uk-width-xlarge {
     width: 900px;
 }
 
-.flag-expired{
+.flag-disable {
     opacity: .5;
+
+}
+.flag-expired {
+    opacity: .5;
+}
+
+.toggles {
+    position: absolute;
+    top: 0px;
+    background: rgba(255,255,255,0.4);
+}
+
+.state-1 svg {
+    background: #faa05a94;
 }
