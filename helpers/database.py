@@ -117,7 +117,12 @@ class Database:
         query = f"UPDATE reality SET {column_name} = {int(value)} WHERE id = {id}"
         return self.execute_query(query)
 
-    # Disables expired (inactive) realities
+    # Delete reality by id
+    def delete_reality_ids(self, ids: list):
+        query = f"DELETE FROM reality WHERE id in ({','.join(ids)})"
+        return self.execute_query(query)
+
+    # Find and set `is_expired` flag of inactive realities
     # Old reality is a reality that has not been updated for more than 1 hour from the last update
     def update_expired_realities(self):
         query = """
@@ -129,4 +134,19 @@ class Database:
                     WHERE last_update.datetime <
                         ((SELECT MAX(update_datetime) FROM reality_history) - INTERVAL 1 HOUR)
             """
+        return self.execute_query(query)
+
+    # Get duplicate realities by same title, return list of dicts
+    def get_duplicate_title_reality_ids(self):
+        query = """
+            SELECT GROUP_CONCAT(id ORDER BY id ASC) as "duplicate_ids"
+            FROM reality
+            GROUP BY title
+            HAVING COUNT(title) > 1
+            """
+        return self.execute_query(query)
+
+    # Move all history from old_ids to last_id
+    def merge_to_last_id(self, last_id, old_ids:list):
+        query = f"UPDATE reality_history rh SET rh.reality_id = {last_id} WHERE rh.reality_id in ({','.join(old_ids)})"
         return self.execute_query(query)
