@@ -19,13 +19,14 @@ def index():
     ## TODO: finish loading realities from DB
     realities = parse_many_from_db(db.get_realities())
     expired_realities = []
+
     for index, reality in enumerate(realities, 0):
         history_list = parse_history_from_db(db.get_reality_history_by_id(reality.id))
         reality.set_history(history_list)
         if reality.is_expired:
-            expired_realities.append(reality)
-            del realities[index]
+            expired_realities.append(realities.pop(index))
     print(f"expired: {len(expired_realities)} realities.")
+    print(f"active: {len(realities)} realities.")
     return render_template('index.html', realities=realities, expired_realities=expired_realities)
 
 # Set reality flags

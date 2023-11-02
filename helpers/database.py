@@ -119,13 +119,13 @@ class Database:
 
     # Disables expired (inactive) realities
     # Old reality is a reality that has not been updated for more than 1 hour from the last update
-    def disable_expired_realities(self):
+    def update_expired_realities(self):
         query = """
                 UPDATE reality r
                     LEFT JOIN
                         (SELECT reality_id, MAX(update_datetime) as datetime from reality_history group by reality_id) last_update
                         ON r.id = last_update.reality_id
-                    SET flags = 'EXPIRED'
+                    SET is_expired = True
                     WHERE last_update.datetime <
                         ((SELECT MAX(update_datetime) FROM reality_history) - INTERVAL 1 HOUR)
             """
