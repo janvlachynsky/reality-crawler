@@ -1,0 +1,59 @@
+  <div class="uk-card uk-card-small uk-grid-collapse" uk-grid>
+                <div class="uk-card-media-top uk-cover-container">
+                    {% if reality.image %}
+                        <div class="uk-background-cover uk-panel uk-flex uk-flex-center uk-flex-middle" style="height:250px;width:400px;background-image: url({{ reality.image }});"></div>
+                    {% else %}
+                        <div class="uk-background-cover uk-panel uk-flex uk-flex-center uk-flex-middle" style="height:250px;width:400px;background-image: url(https://via.placeholder.com/600x400);"></div>
+
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="uk-card-header uk-padding-remove-top uk-padding-remove-left uk-padding-remove-right uk-padding-remove-bottom">
+                        <h5 class="uk-card-title" style="font-size:14pt;">
+                            <a href="{{ reality.url }}" target="_blank">{{ reality.title }}</a>
+                        </h5>
+                        <span class="toggles">
+                            <a class="reality_action action-hide state-{{ reality.is_hidden }}" data-action="hide" data-reality-id="{{ reality.id }}" data-current-state="{{ reality.is_hidden }}" href="#"  uk-icon="icon: eye-slash" title="hide" onclick="return false;"></a>
+
+                            <a class="reality_action action-favourite state-{{ reality.is_favourite }}" data-action="favourite" data-reality-id="{{ reality.id }}" data-current-state="{{ reality.is_favourite }}" href="#"  uk-icon="icon: heart" title="favourite" onclick="return false;"></a>
+
+                            <a class="reality_action action-expire state-{{ reality.is_expired }}" data-action="expire" data-reality-id="{{ reality.id }}" data-current-state="{{ reality.is_expired }}" href="#"  uk-icon="icon: close" title="expire" onclick="return false;"></a>
+                        </span>
+                    </div>
+                    <div class="uk-card-body uk-padding-remove-top uk-padding-remove-left uk-padding-remove-right uk-padding-remove-bottom">
+                        <div uk-grid>
+                            <div><strong>{{ "{:,}".format(reality.price) }} Kč</strong></div>
+                            <div>{{ reality.date }}</div>
+                        </div>
+
+                        <div class="uk-card-badge uk-label">{{reality.viewed_count}}</div>
+                        {% if reality.history|length<2 %}
+                        <div class="uk-card-badge uk-label">New</div>
+                        {% endif %}
+
+                        <p>
+                            {{reality.description}}...
+                        </p>
+                    </div>
+                    <div class="uk-card-footer uk-padding-remove-left uk-padding-remove-right">
+                        <div class="history">
+                            {% if reality.history %}
+                            <ul style="font-size:10pt;" uk-accordion>
+                                <li>
+                                    <a class="uk-accordion-title" href="#"><strong>History</strong> [{{reality.history|length}}]</a>
+                                    <div class="uk-accordion-content">
+                                        <ul class="uk-list">
+                                        {% for history in reality.history %}
+                                            <li>{{ history.update_datetime }}: {{ "{:,} Kč".format(history.price) }}</li>
+                                        {% endfor %}
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                            {% else %}
+                            <p>no history</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>

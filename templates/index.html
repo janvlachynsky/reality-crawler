@@ -1,19 +1,35 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+
     {% if realities %}
-        <div class="uk-child-width-1-3@s uk-child-width-1-2" uk-grid>
-            {% for reality in realities %}
-                {% include 'includes/_reality.html' %}
-            {% endfor %}
-        </div>
+    <div class="uk-container">
+        <a class="uk-button uk-button-small uk-button-secondary" href="{{ data_source.baseUrl }}{{ data_source.urlPath}}{{ data_source.urlQuery}}" target="_blank">Data source</a>
+        <span> Active realities: {{ realities|length }}</span> | Expired realities: {{ expired_realities|length }}
+    </div>
+
+        <section class="uk-section uk-width-expand" style="margin: 0 auto;">
+            <div class="uk-container">
+                <div class="uk-child-width-1-3@s uk-child-width-1-2" uk-grid>
+                    {% for reality in realities %}
+                        {% include 'includes/_reality.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
     {% endif %}
+
     {% if expired_realities %}
-        <h1>Expired realities</h1>
-        <div class="uk-child-width-1-3@s uk-child-width-1-2 uk-secondary" uk-grid>
-            {% for reality in expired_realities %}
-                {% include 'includes/_reality.html' %}
-            {% endfor %}
-        </div>
+        <section class="uk-section uk-section-muted uk-width-expand" style="margin: 0 auto;">
+            <div class="uk-container">
+                <h1>Expired realities</h1>
+                <div class="uk-child-width-1-3@s uk-child-width-1-2 uk-secondary" uk-grid>
+                    {% for reality in expired_realities %}
+                        {% include 'includes/_reality.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
     {% endif %}
+
 {% endblock %}

@@ -38,6 +38,7 @@ def main():
     logging.basicConfig(filename=os.path.join(project_dir,'logs','reality_crawler.log'), level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(message)s')
 
     config = configparser.ConfigParser()
+    config.optionxform=str  # preserve case sensitive keys
     config.read(os.path.join(project_dir,'config.conf'))
     db = Database(**dict(config["database"]))
     # start time measurement

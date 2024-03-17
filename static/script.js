@@ -11,7 +11,8 @@ $(document).ready(function () {
             data: { reality_id: id, action: action, current_state: current_state },
             dataType: "text",
             success: function (data) {
-                alert("Updated reality " + id + " as " + action);
+                // TODO don't alert, use flash message
+                console.log("Updated reality " + id + " as " + action);
             }
         });
     });

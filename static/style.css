@@ -21,6 +21,33 @@ h1 strong {
     background: rgba(255,255,255,0.4);
 }
 
-.state-1 svg {
+.action-favourite.state-1 svg {
     background: #faa05a94;
+}
+.action-hide.state-1 svg {
+    background: #3e62ffbd;
+    color: lightgray;
+}
+.action-expire.state-1 svg {
+    background: #35449694;
+    color: lightgray;
+}
+
+.uk-section-muted {
+    background: #e5e5e5;
+}
+.uk-accordion-title {
+    font-size: 1rem !important;
+}
+.uk-list > :nth-child(n+2), .uk-list > * > ul {
+    margin-top: 0px !important;
+}
+.uk-accordion-content {
+    margin-top: 0px !important;
+}
+.to-top{
+    position:fixed;
+    bottom:30px;
+    right: 20px;
+
 }

@@ -1,5 +1,5 @@
 class Reality:
-    # TODO: use __slots__ for attributes
+    # TODO: use @dataclass for attributes
     class History:
         price:int = 0
         update_datetime = ""

@@ -131,3 +131,11 @@ dmypy.json
 # Config
 /config.conf
 logs/*
+
+# Build
+build/
+dist/
+*.egg-info/
+*.egg
+*.tar.gz
+*.whl

@@ -11,8 +11,10 @@ project_dir = os.path.dirname(__file__)
 
 # Config MySQL
 config = configparser.ConfigParser()
+config.optionxform=str  # preserve case sensitive keys
 config.read(os.path.join(project_dir,'config.conf'))
 db = Database(**dict(config["database"]))
+data_source = dict(config["bazos"])
 
 @app.route('/')
 def index():
@@ -23,20 +25,21 @@ def index():
     for index, reality in enumerate(realities, 0):
         history_list = parse_history_from_db(db.get_reality_history_by_id(reality.id))
         reality.set_history(history_list)
-        if reality.is_expired:
-            expired_realities.append(realities.pop(index))
+        if reality.is_expired and not reality.is_favourite:
+            expired_realities.append(reality)
+    realities = [r for r in realities if r not in expired_realities]
     print(f"expired: {len(expired_realities)} realities.")
     print(f"active: {len(realities)} realities.")
-    return render_template('index.html', realities=realities, expired_realities=expired_realities)
+
+    return render_template('index.html', data_source=data_source, realities=realities, expired_realities=expired_realities)
 
 # Set reality flags
 @app.route('/reality_set', methods=['POST'])
 def reality_set():
     if request.method == 'POST':
-        # TODO: finish favourite/disable
+        # TODO: finish Merge/Delete with checkboxes
         reality_id = int(request.form['reality_id'])
         action = request.form['action']
-        # TODO: LATEST: pass current_state and invert it to save into DB
         current_state = request.form['current_state']
         print("reality_set_flag triggered with: ", action, " and ", reality_id , " current ", current_state)
 

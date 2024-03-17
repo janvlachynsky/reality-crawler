@@ -91,7 +91,7 @@ class Database:
 
     # Getters
     def get_realities(self):
-        return self.execute_query("SELECT * FROM reality order by is_favourite DESC, is_hidden ASC, date DESC, is_expired ASC")
+        return self.execute_query("SELECT * FROM reality ORDER BY is_favourite DESC, is_hidden ASC, date DESC, is_expired ASC")
 
     def get_reality_by_id(self, id: int):
         return self.execute_query("SELECT * FROM reality WHERE id = {}".format(id))
@@ -119,19 +119,25 @@ class Database:
 
     # Delete reality by id
     def delete_reality_ids(self, ids: list):
-        query = f"DELETE FROM reality WHERE id in ({','.join(ids)})"
+        query = f"DELETE FROM reality WHERE id IN ({','.join(ids)})"
         return self.execute_query(query)
 
-    # Find and set `is_expired` flag of inactive realities
+    # Find and set `is_expired` flag for inactive realities
     # Old reality is a reality that has not been updated for more than 1 hour from the last update
     def update_expired_realities(self):
         query = """
-                UPDATE reality r
-                    LEFT JOIN
-                        (SELECT reality_id, MAX(update_datetime) as datetime from reality_history group by reality_id) last_update
-                        ON r.id = last_update.reality_id
-                    SET is_expired = True
-                    WHERE last_update.datetime <
+            UPDATE reality r
+                LEFT JOIN
+                    (SELECT reality_id, MAX(update_datetime) AS datetime
+                        FROM reality_history
+                        GROUP BY reality_id
+                    ) last_update
+                ON r.id = last_update.reality_id
+                SET is_expired = True
+                WHERE (
+                    last_update.datetime IS NULL AND r.date < (NOW() - INTERVAL 7 DAY)
+                )
+                    OR last_update.datetime <
                         ((SELECT MAX(update_datetime) FROM reality_history) - INTERVAL 1 HOUR)
             """
         return self.execute_query(query)
@@ -139,7 +145,7 @@ class Database:
     # Get duplicate realities by same title, return list of dicts
     def get_duplicate_title_reality_ids(self):
         query = """
-            SELECT GROUP_CONCAT(id ORDER BY id ASC) as "duplicate_ids"
+            SELECT GROUP_CONCAT(id ORDER BY id ASC) AS "duplicate_ids"
             FROM reality
             GROUP BY title
             HAVING COUNT(title) > 1
