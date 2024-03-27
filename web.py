@@ -6,7 +6,9 @@ from passlib.hash import sha256_crypt
 from helpers.database import Database
 from helpers.reality import *
 
+# TODO: Use require login to access this page!
 app = Flask(__name__)
+app.secret_key = 'reality_crawler_secret_key'
 project_dir = os.path.dirname(__file__)
 
 # Config MySQL
@@ -18,7 +20,6 @@ data_source = dict(config["bazos"])
 
 @app.route('/')
 def index():
-    ## TODO: finish loading realities from DB
     realities = parse_many_from_db(db.get_realities())
     expired_realities = []
 
@@ -37,7 +38,7 @@ def index():
 @app.route('/reality_set', methods=['POST'])
 def reality_set():
     if request.method == 'POST':
-        # TODO: finish Merge/Delete with checkboxes
+        # TODO: finish Merge with checkboxes
         reality_id = int(request.form['reality_id'])
         action = request.form['action']
         current_state = request.form['current_state']

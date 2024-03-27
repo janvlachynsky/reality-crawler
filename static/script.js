@@ -1,18 +1,26 @@
 $(document).ready(function () {
 
     $(".reality_action").click(function () {
-        var id = $(this).attr("data-reality-id");
-        var action = $(this).attr("data-action");
-        var current_state = $(this).attr("data-current-state");
-        console.log("clicked action reality button " + id + " as " + action, 'current_state: ' + current_state);
+        clicked_element = $(this);
+        var id = clicked_element.attr("data-reality-id");
+        var action = clicked_element.attr("data-action");
+        var current_state = clicked_element.attr("data-current-state");
         $.ajax({
             type: 'POST',
             url: "/reality_set",
             data: { reality_id: id, action: action, current_state: current_state },
             dataType: "text",
             success: function (data) {
-                // TODO don't alert, use flash message
+                var new_state = 1 - current_state;
                 console.log("Updated reality " + id + " as " + action);
+                UIkit.notification({ message: "Updated id: " + id + " as " + (new_state==0?"NOT ":"") + action, status: 'success' });
+                clicked_element.attr("data-current-state", new_state);
+                clicked_element.removeClass("state-" + current_state);
+                clicked_element.addClass("state-" + new_state);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log("Error: " + errorThrown);
+                UIkit.notification({ message: "Error: " + errorThrown, status: 'danger' });
             }
         });
     });

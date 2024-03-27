@@ -51,3 +51,8 @@ h1 strong {
     right: 20px;
 
 }
+
+.uk-accordion-content {
+    max-height: 200px;
+    overflow: auto;
+}
